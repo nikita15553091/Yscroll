@@ -1,0 +1,32 @@
+(function() {
+    const collected = new Set();
+    let lastY = window.scrollY, wait = 0, lastLen = 0;
+
+    const timer = setInterval(() => {
+        document.querySelectorAll('div, li, tr').forEach(el => {
+            if (el.innerText && el.innerText.includes('\n')) {
+                const p = el.innerText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+                if (p.length >= 2 && p.length < 8) {
+                    const t = p[0], a = p[1];
+                    if (t.length > 1 && a.length > 1 && !t.includes(':') && !a.includes(':') && 
+                        t !== 'Поиск трека' && t !== 'Новый плейлист' && t !== 'Моя волна' && a !== 'feat.') {
+                        collected.add(`${a} — ${t}`);
+                    }
+                }
+            }
+        });
+        
+        window.scrollBy(0, 60);
+
+        if (collected.size === lastLen) wait++; else { lastLen = collected.size; wait = 0; }
+
+        if (wait > 30 || (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 5) {
+            clearInterval(timer);
+            window.scrollTo(0, 0);
+            let res = '';
+            Array.from(collected).forEach((t, i) => res += `${i + 1}. ${t}\n`);
+            console.clear();
+            console.log(res);
+        }
+    }, 100);
+})();
